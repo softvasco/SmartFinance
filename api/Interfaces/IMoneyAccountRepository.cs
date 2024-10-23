@@ -2,7 +2,7 @@
 
 namespace api.Interfaces
 {
-    public interface ITransactionAccountRepository
+    public interface IMoneyAccountRepository
     {
         //Task<User> CreateAsync(User user);
     }

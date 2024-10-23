@@ -5,407 +5,74 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-<PageTitle>Personal Management - Annual Dashboard</PageTitle>
-@* 
-<style>
-    .centered-table-with-borders {
-        margin: 0 auto;
-        border-collapse: collapse;
-        width: 100%;
-    }
+<PageTitle>Smart Finance - Annual Dashboard</PageTitle>
 
-        .centered-table-with-borders th {
-            text-align: center;
-            background-color: #f2f2f2;
-            padding: 8px;
-            border: 1px solid #ddd;
-        }
+<div class="container">
+    <h2>DashBoard</h2>
 
-        .centered-table-with-borders td {
-            text-align: center;
-            padding: 8px;
-            border: 1px solid #ddd;
-        }
-</style>
-
-@if (homeDto == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-
-    <br />
-    <h2><b>DashBoard</b></h2>
-    <br />
-    <br />
-
-    <h4>Finance Goal</h4>
-    <label>In <b>@homeDto.HomeFinanceGoal.StartGoalDate.ToString("dd-MM-yyyy")</b> the debt was <b>@homeDto.HomeFinanceGoal.OutstandingAmount€</b> and in <b>31/12/2024</b> will be <b>@homeDto.HomeFinanceGoal.DebtAmount€</b>.</label>
-    <label>
-        The finance goal is @homeDto.HomeFinanceGoal.Goal. The difference will be @if (@homeDto.HomeFinanceGoal.Diff < 0)
-        {
-            <span style="color: red;">@homeDto.HomeFinanceGoal.Diff€.</span>
-        }
-        else
-        {
-            <span style="color: green;">@homeDto.HomeFinanceGoal.Diff€.</span>
-        }
-    </label>
-    <br />
-    <label>
-        <span>All debt will be paid in @homeDto.HomeFinanceGoal.FinalDebtDate.ToString("dd-MM-yyyy")</span>
-    </label>
-    <br />
-    <br />
-
-    <h4>Categories</h4>
-    <br />
-    <table class="centered-table-with-borders">
-        <thead>
-            <tr>
-                <th colspan="1">Category Name</th>
-                <th colspan="1">Jan</th>
-                <th colspan="1">Feb</th>
-                <th colspan="1">Mar</th>
-                <th colspan="1">April</th>
-                <th colspan="1">May</th>
-                <th colspan="1">June</th>
-                <th colspan="1">July</th>
-                <th colspan="1">August</th>
-                <th colspan="1">Sept</th>
-                <th colspan="1">Oct</th>
-                <th colspan="1">Nov</th>
-                <th colspan="1">Dec</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var homeCategory in @homeDto.HomeCategories)
+    <!-- Dropdown para selecionar o ano -->
+    <div class="year-selector">
+        <label for="yearDropdown">Selecione o Ano:</label>
+        <select id="yearDropdown" @bind="SelectedYear" class="form-control">
+            @foreach (var year in AvailableYears)
             {
-                <tr>
-                    <td>@homeCategory.CategoryName</td>
-                    <td>@homeCategory.JanuaryExpenses</td>
-                    <td>@homeCategory.FebruaryExpenses</td>
-                    <td>@homeCategory.MarchExpenses</td>
-                    <td>@homeCategory.AprilExpenses</td>
-                    <td>@homeCategory.MayExpenses</td>
-                    <td>@homeCategory.JuneExpenses</td>
-                    <td>@homeCategory.JulyExpenses</td>
-                    <td>@homeCategory.AugustExpenses</td>
-                    <td>@homeCategory.SeptemberExpenses</td>
-                    <td>@homeCategory.OctoberExpenses</td>
-                    <td>@homeCategory.NovemberExpenses</td>
-                    <td>@homeCategory.DecemberExpenses</td>
-                </tr>
+                <option value="@year">@year</option>
             }
-        </tbody>
-    </table>
+        </select>
+    </div>
 
-    <br />
-    <h4>Sub-Categories</h4>
-    <br />
-    <table class="centered-table-with-borders">
-        <thead>
-            <tr>
-                <th colspan="1">Sub Category</th>
-                <th colspan="1">Category Name</th>
-                <th colspan="1">Jan</th>
-                <th colspan="1">Feb</th>
-                <th colspan="1">Mar</th>
-                <th colspan="1">April</th>
-                <th colspan="1">May</th>
-                <th colspan="1">June</th>
-                <th colspan="1">July</th>
-                <th colspan="1">August</th>
-                <th colspan="1">Sept</th>
-                <th colspan="1">Oct</th>
-                <th colspan="1">Nov</th>
-                <th colspan="1">Dec</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var homeSubCategory in @homeDto.HomeSubCategories)
-            {
-                <tr>
-                    <td>@homeSubCategory.SubCategoryName</td>
-                    <td>@homeSubCategory.CategoryName</td>
-                    <td>
-                        @if (homeSubCategory.JanuaryExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.JanuaryExpenses > homeSubCategory.JanuaryExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.JanuaryExpenses€</span>
+    <!-- Gráfico Donut -->
+    <div class="chart-container" style="position: relative; width: 300px; float: right; margin-top: -100px;">
+        <canvas id="donutChart"></canvas>
+    </div>
+</div>
 
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.JanuaryExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.JanuaryExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.JanuaryExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.FebruaryExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.FebruaryExpenses > homeSubCategory.FebruaryExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.FebruaryExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.FebruaryExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.FebruaryExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.FebruaryExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.MarchExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.MarchExpenses > homeSubCategory.MarchExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.MarchExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.MarchExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.MarchExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.MarchExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.AprilExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.AprilExpenses > homeSubCategory.AprilExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.AprilExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.AprilExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.AprilExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.AprilExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.MayExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.MayExpenses > homeSubCategory.MayExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.MayExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.MayExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.MayExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.MayExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.JuneExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.JuneExpenses > homeSubCategory.JuneExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.JuneExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.JuneExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.JuneExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.JuneExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.JulyExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.JulyExpenses > homeSubCategory.JulyExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.JulyExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.JulyExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.JulyExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.JulyExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.AugustExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.AugustExpenses > homeSubCategory.AugustExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.AugustExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.AugustExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.AugustExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.AugustExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.SeptemberExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.SeptemberExpenses > homeSubCategory.SeptemberExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.SeptemberExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.SeptemberExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.SeptemberExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.SeptemberExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.OctoberExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.OctoberExpenses > homeSubCategory.OctoberExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.OctoberExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.OctoberExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.OctoberExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.OctoberExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.NovemberExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.NovemberExpenses > homeSubCategory.NovemberExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.NovemberExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.NovemberExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.NovemberExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.NovemberExpensesPlafon€</span>
-                        }
-                    </td>
-                    <td>
-                        @if (homeSubCategory.DecemberExpenses == 0)
-                        {
-                            <span>-</span>
-                        }
-                        else if (homeSubCategory.DecemberExpenses > homeSubCategory.DecemberExpensesPlafon)
-                        {
-                            <span style="color: red;">@homeSubCategory.DecemberExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.DecemberExpensesPlafon€</span>
-                        }
-                        else
-                        {
-                            <span style="color: green;">@homeSubCategory.DecemberExpenses€</span>
-
-                            <span>/</span>
-
-                            <span style="color: blue;">@homeSubCategory.DecemberExpensesPlafon€</span>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
 
 @code {
-    private HomeDto homeDto = new();
+    private bool _isInteractive = false;
 
-    protected override async Task OnInitializedAsync()
+    private int SelectedYear = 2024;
+    private List<int> AvailableYears = new List<int> { 2024, 2025, 2026 };
+    private decimal TotalDebt = 60000m;
+    private decimal CurrentDebt = 20000m;
+    private decimal PredictedDebtEndOfYear = 15000m;
+
+    // Quando o ano é selecionado, podes atualizar as variáveis de dívida conforme o ano
+    private void OnYearChanged(ChangeEventArgs e)
     {
-        homeDto = await Http.GetFromJsonAsync<HomeDto>("api/Home");
+        SelectedYear = int.Parse(e.Value.ToString());
+        // Atualiza os valores de dívida conforme o ano selecionado
+        UpdateDebtValues(SelectedYear);
+        // RenderChart();
+    }
+
+    private void UpdateDebtValues(int year)
+    {
+        // Lógica para atualizar o valor da dívida conforme o ano
+        if (year == 2024)
+        {
+            CurrentDebt = 20000m;
+            PredictedDebtEndOfYear = 15000m;
+        }
+        else if (year == 2025)
+        {
+            CurrentDebt = 12000m;
+            PredictedDebtEndOfYear = 8000m;
+        }
+        else if (year == 2026)
+        {
+            CurrentDebt = 5000m;
+            PredictedDebtEndOfYear = 0m;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isInteractive = true;
+            await JSRuntime.InvokeVoidAsync("renderDonutChart", TotalDebt, CurrentDebt, PredictedDebtEndOfYear);
+        }
     }
 
 }
- *@
