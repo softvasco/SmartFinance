@@ -1,6 +1,5 @@
 using frontend.Components;
 using Microsoft.AspNetCore.DataProtection;
-using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +14,7 @@ builder.Services.AddDataProtection()
 builder.Services.AddScoped(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var apiUrl = !builder.Environment.IsEnvironment("Development") ? "http://personal_management_api/" : "http://localhost:5192/";
+    var apiUrl = !builder.Environment.IsEnvironment("Development") ? "http://smart_finance_api/" : "http://localhost:5192/";
     return new HttpClient { BaseAddress = new Uri(apiUrl) };
 });
 

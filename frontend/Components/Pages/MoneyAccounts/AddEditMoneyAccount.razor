@@ -1,0 +1,30 @@
+﻿@page "/add-moneyaccount"
+@page "/add-moneyaccount/{id}"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+@if (Id == null)
+{
+    <PageTitle>Smart Finance - Add Money Account</PageTitle>
+
+    <br />
+    <br />
+    <h2>Add money account</h2>
+    <br />
+}
+else
+{
+    <PageTitle>Smart Finance - Edit Money Account</PageTitle>
+    <br />
+    <br />
+    <h2>Edit money account</h2>
+    <br />
+}
+
+@code {
+
+    [Parameter] public int? Id { get; set; }
+}
