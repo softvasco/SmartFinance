@@ -1,5 +1,5 @@
 ﻿using api.Models;
-using shared.DTOs;
+using shared.DTOs.Users;
 
 namespace api.Mappers
 {

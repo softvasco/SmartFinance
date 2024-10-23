@@ -3,14 +3,14 @@
 @inject IJSRuntime JSRuntime
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-<PageTitle>Personal Management - Finance Goals</PageTitle>
+<PageTitle>Smart Finance - Finance Goals</PageTitle>
 
 <br />
 <br />
 <h2>Finance goals</h2>
 <br />
-@* 
-@if (financeGoalsDto == null)
+
+@if (financeGoals == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -20,7 +20,8 @@ else
         <thead>
             <tr>
                 <th>Code</th>
-                <th>Description</th>
+                <th>Small Description</th>
+                <th>Full Description</th>
                 <th>Outstanding Amount</th>
                 <th>Current Debt Amoun</th>
                 <th>Goal</th>
@@ -30,7 +31,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var financeGoal in financeGoalsDto)
+            @foreach (var financeGoal in financeGoals)
             {
                 <tr>
                     <td>
@@ -46,11 +47,21 @@ else
                     <td>
                         @if (financeGoal.IsEditing)
                         {
-                            <input @bind="financeGoal.Description" class="form-control" />
+                            <input @bind="financeGoal.SmallDescription" class="form-control" />
                         }
                         else
                         {
-                            @financeGoal.Description
+                            @financeGoal.SmallDescription
+                        }
+                    </td>
+                    <td>
+                        @if (financeGoal.IsEditing)
+                        {
+                            <input @bind="financeGoal.FullDescription" class="form-control" />
+                        }
+                        else
+                        {
+                            @financeGoal.FullDescription
                         }
                     </td>
                     <td>
@@ -100,8 +111,10 @@ else
                         }
                         else
                         {
-                            if (financeGoal.EndGoalDate.HasValue)
-                                @financeGoal.EndGoalDate.Value.ToString("dd-MM-yyyy")
+                            @if (financeGoal.EndGoalDate.HasValue)
+                            {
+                                @financeGoal.EndGoalDate.Value!.ToString("dd-MM-yyyy")
+                            }
                         }
                     </td>
                     <td>
@@ -123,21 +136,19 @@ else
     <button class="btn btn-primary" @onclick="AddNewFinanceGoal">Add</button>
 }
 
-
-
 @code {
-    private List<FinanceGoalDto> financeGoalsDto;
+    private List<FinanceGoalDto> financeGoals;
 
 
     protected override async Task OnInitializedAsync()
     {
-        financeGoalsDto = await Http.GetFromJsonAsync<List<FinanceGoalDto>>("api/FinanceGoals");
+        financeGoals = await Http.GetFromJsonAsync<List<FinanceGoalDto>>("api/FinanceGoals");
     }
 
     void AddNewFinanceGoal()
     {
         var newFinanceGoal = new FinanceGoalDto();
-        financeGoalsDto.Add(newFinanceGoal);
+        financeGoals.Add(newFinanceGoal);
 
         Edit(newFinanceGoal);
 
@@ -149,41 +160,41 @@ else
         newFinanceGoal.IsEditing = true;
     }
 
-    async Task Save(FinanceGoalDto financeGoalDto)
+    async Task Save(FinanceGoalDto financeGoal)
     {
-        if (financeGoalDto.Id == 0)
+        if (financeGoal.Id == 0)
         {
             CreateFinanceGoalDto createFinanceGoalDto = new CreateFinanceGoalDto();
 
-            createFinanceGoalDto.Id = financeGoalDto.Id;
-            createFinanceGoalDto.UserId = 1; //TODO @VS - Change user id to current user
-            createFinanceGoalDto.Code = financeGoalDto.Code;
-            createFinanceGoalDto.Description = financeGoalDto.Description;
-            createFinanceGoalDto.EndGoalDate = financeGoalDto.EndGoalDate;
-            createFinanceGoalDto.StartGoalDate = financeGoalDto.StartGoalDate;
-            createFinanceGoalDto.CurrentDebtAmount = financeGoalDto.CurrentDebtAmount;
-            createFinanceGoalDto.Goal = financeGoalDto.Goal;
-            createFinanceGoalDto.OutstandingAmount = financeGoalDto.OutstandingAmount;
-          
+            createFinanceGoalDto.Id = financeGoal.Id;
+            // createEarningDto.Code = earning.Code;
+            // createEarningDto.Description = earning.Description;
+            // createEarningDto.EndDate = earning.EndDate;
+            // createEarningDto.PayDay = earning.PayDay;
+            // createEarningDto.Amount = earning.Amount;
+            // createEarningDto.DestinationAccountOrCardCode = earning.DestinationAccountOrCardCode;
+            // createEarningDto.StartDate = earning.StartDate;
+            // createEarningDto.Months = earning.Months;
+
             var response = await Http.PostAsJsonAsync("api/FinanceGoals", createFinanceGoalDto);
-            financeGoalDto.IsEditing = false;
+            financeGoal.IsEditing = false;
             StateHasChanged();
         }
         else
         {
             UpdateFinanceGoalDto updateFinanceGoalDto = new UpdateFinanceGoalDto();
 
-            updateFinanceGoalDto.UserId = 1; //TODO @VS - Change user id to current user
-            updateFinanceGoalDto.Code = financeGoalDto.Code;
-            updateFinanceGoalDto.Description = financeGoalDto.Description;
-            updateFinanceGoalDto.EndGoalDate = financeGoalDto.EndGoalDate;
-            updateFinanceGoalDto.StartGoalDate = financeGoalDto.StartGoalDate;
-            updateFinanceGoalDto.CurrentDebtAmount = financeGoalDto.CurrentDebtAmount;
-            updateFinanceGoalDto.Goal = financeGoalDto.Goal;
-            updateFinanceGoalDto.OutstandingAmount = financeGoalDto.OutstandingAmount;
+            // updateEarningDto.Code = earning.Code;
+            // updateEarningDto.Description = earning.Description;
+            // updateEarningDto.EndDate = earning.EndDate;
+            // updateEarningDto.PayDay = earning.PayDay;
+            // updateEarningDto.Amount = earning.Amount;
+            // updateEarningDto.DestinationAccountOrCardCode = earning.DestinationAccountOrCardCode;
+            // updateEarningDto.StartDate = earning.StartDate;
+            // updateEarningDto.Months = earning.Months;
 
-            var response = await Http.PutAsJsonAsync("api/FinanceGoals/" + financeGoalDto.Id, updateFinanceGoalDto);
-            financeGoalDto.IsEditing = false;
+            var response = await Http.PutAsJsonAsync("api/FinanceGoals/" + financeGoal.Id, updateFinanceGoalDto);
+            financeGoal.IsEditing = false;
             StateHasChanged();
         }
     }
@@ -191,10 +202,9 @@ else
     async Task Cancel(FinanceGoalDto financeGoalDto)
     {
         financeGoalDto.IsEditing = false;
-        financeGoalsDto = await Http.GetFromJsonAsync<List<FinanceGoalDto>>("api/FinanceGoals");
+        financeGoals = await Http.GetFromJsonAsync<List<FinanceGoalDto>>("api/FinanceGoals");
         StateHasChanged();
     }
-
 
     async Task ConfirmDelete(int financeGoalId)
     {
@@ -202,16 +212,9 @@ else
 
         if (confirmed)
         {
-            await Delete(financeGoalId);
+            var response = await Http.DeleteAsync("api/FinanceGoals/" + financeGoalId);
+            financeGoals = await Http.GetFromJsonAsync<List<FinanceGoalDto>>("api/FinanceGoals");
+            StateHasChanged();
         }
     }
-
-    async Task Delete(int financeGoalId)
-    {
-        var response = await Http.DeleteAsync("api/FinanceGoals/" + financeGoalId);
-        StateHasChanged();
-        financeGoalsDto = await Http.GetFromJsonAsync<List<FinanceGoalDto>>("api/FinanceGoals");
-    }
-
-
-} *@
+}

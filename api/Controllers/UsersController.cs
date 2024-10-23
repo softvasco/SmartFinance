@@ -2,7 +2,7 @@
 using api.Interfaces;
 using api.Mappers;
 using Microsoft.AspNetCore.Mvc;
-using shared.DTOs;
+using shared.DTOs.Users;
 
 namespace api.Controllers
 {
