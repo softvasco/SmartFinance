@@ -1,0 +1,232 @@
+﻿@* @page "/transactions"
+@using Shared.Enum
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+
+<style>
+    .loader {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid #3498db;
+        border-radius: 250px;
+        width: 250px;
+        height: 250px;
+        animation: spin 2s linear infinite;
+    }
+
+    .spinner-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 80%;
+    }
+
+</style>
+
+<script>
+    function clearDates() {
+        document.getElementById("startDate").value = "";
+        document.getElementById("endDate").value = "";
+    }
+</script>
+
+<PageTitle>Personal Management - Transactions</PageTitle>
+
+<br />
+<br />
+<h2>Transactions</h2>
+<br />
+
+<form style="border: 1px solid #000; padding: 10px;">
+    <div class="row">
+        <div class="col-sm">
+            <label for="description">Description</label>
+            <input type="text" class="form-control" id="description" @bind="description" />
+        </div>
+        <div class="col-sm">
+            <label for="state">State</label>
+            <select class="form-control" id="state" @bind="selectedState">
+                <option value="-1">All</option>
+                <option value="1">Pending</option>
+                <option value="2">Finished</option>
+            </select>
+        </div>
+        <div class="col-sm">
+            <label for="startDate">Start Date</label>
+            <input type="date" class="form-control" id="startDate" @bind="startDate" />
+        </div>
+        <div class="col-sm">
+            <label for="endDate">End Date</label>
+            <input type="date" class="form-control" id="endDate" @bind="endDate" />
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-sm" style="text-align:right;">
+            <button type="button" class="btn btn-secondary" onclick="clearDates()">Clear Dates</button>
+            <button type="submit" class="btn btn-primary ml-auto">Search</button>
+        </div>
+    </div>
+</form>
+
+<br />
+@if (transactions == null)
+{
+    <div class="spinner-container">
+        <div class="loader"></div>
+    </div>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="AddTransaction">Add</button>
+    <br />
+    <br />
+    <table class="table" style="border: 1px solid #000; padding: 10px;">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Operation Date</th>
+                <th>Amount</th>
+                <th>State</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Attachment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in transactions)
+            {
+                <tr>
+                    <td>
+                        @transaction.Description
+                    </td>
+                    <td>
+                        @transaction.OperationDate.ToString("dd-MM-yyyy")
+                    </td>
+                    <td>
+                        @transaction.Amount
+                    </td>
+                    <td>
+                        <span style="color: @(transaction.StateDesc == "Finished" ? "green" : "red")">@transaction.StateDesc</span>
+                    </td>
+                    <td>
+                        @transaction.SourceAccountOrCardCode
+                    </td>
+                    <td>
+                        @transaction.DestinationAccountOrCardCode
+                    </td>
+                    <td>
+                        @if (transaction.FileBytes != null && transaction.FileBytes.Length > 0)
+                        {
+                            <a href="@DownloadAttachment(transaction)" download="@transaction.FileName">Download file</a>
+                        }
+                    </td>
+                    <td>
+                        @if (transaction.State == (int)TransactionState.Pending)
+                        {
+                            <button class="btn btn-success" @onclick="() => ConfirmApprove(transaction)">Approve</button>
+                            <button class="btn btn-primary" @onclick="() => Edit(transaction)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => ConfirmDelete(transaction.Id)">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-primary" @onclick="AddTransaction">Add</button>
+}
+
+@code {
+    private List<TransactionDto> transactions = new();
+    private string description = string.Empty;
+
+    private int selectedState = -1;
+    private DateTime startDate = DateTime.Now;
+    private DateTime endDate = DateTime.Now.AddDays(30);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CallSearch();
+    }
+
+    protected async Task Search()
+    {
+        await CallSearch();
+    }
+
+    private async Task CallSearch()
+    {
+        // Create a dictionary to store the search parameters
+        var searchParams = new Dictionary<string, string>
+        {
+            { "description", description },
+            { "State", selectedState.ToString() },
+            { "StartDate", startDate.ToString("yyyy-MM-dd") },
+            { "EndDate", endDate.ToString("yyyy-MM-dd") }
+        };
+
+        // Construct the query string
+        var queryString = string.Join("&", searchParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+
+        // Make the API call with the search parameters
+        transactions = await Http.GetFromJsonAsync<List<TransactionDto>>($"api/Transactions?{queryString}");
+    }
+
+    void AddTransaction()
+    {
+        // Redirect to another page upon successful processing
+        NavigationManager.NavigateTo("/add-transaction");
+    }
+
+    string DownloadAttachment(TransactionDto transactionDto)
+    {
+        if (transactionDto.FileBytes == null || transactionDto.FileBytes.Length <= 0)
+            return string.Empty;
+
+        var dataUrl = $"data:{transactionDto.ContentType};base64,{Convert.ToBase64String(transactionDto.FileBytes)}";
+        return dataUrl;
+    }
+
+    async Task ConfirmApprove(TransactionDto transactionDto)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new string[] { "Are you sure you want to confirm this transaction?" });
+
+        if (confirmed)
+        {
+            await Approve(transactionDto);
+        }
+    }
+
+    async Task Approve(TransactionDto transactionDto)
+    {
+        var response = await Http.PutAsync($"api/Transactions/ConfirmTransaction/{transactionDto.Id}", null);
+        StateHasChanged();
+        transactions = await Http.GetFromJsonAsync<List<TransactionDto>>("api/Transactions");
+    }
+
+    void Edit(TransactionDto transactionDto)
+    {
+        NavigationManager.NavigateTo($"/add-transaction/{transactionDto.Id}");
+    }
+
+    async Task ConfirmDelete(int transactiondId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new string[] { "Are you sure you want to delete this transaction?" });
+
+        if (confirmed)
+        {
+            await Delete(transactiondId);
+        }
+    }
+
+    async Task Delete(int transactiondId)
+    {
+        var response = await Http.DeleteAsync("api/Transactions/" + transactiondId);
+        StateHasChanged();
+        transactions = await Http.GetFromJsonAsync<List<TransactionDto>>("api/Transactions");
+    }
+
+} *@

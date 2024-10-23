@@ -1,0 +1,267 @@
+﻿@page "/expenses"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+<PageTitle>Personal Management - Expenses</PageTitle>
+
+<br />
+<br />
+<h2>Expenses</h2>
+<br />
+@* 
+@if (expenses == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Months</th>
+                <th>PayDay</th>
+                <th>StartDate</th>
+                <th>EndDate</th>
+                <th>Amount</th>
+                <th>SourceAccountOrCardCode</th>
+                <th>DestinationAccountOrCardCode</th>
+                <th>SubCategory</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var expense in expenses)
+            {
+                <tr>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <input @bind="expense.Code" class="form-control" />
+                        }
+                        else
+                        {
+                            @expense.Code
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <input @bind="expense.Description" class="form-control" />
+                        }
+                        else
+                        {
+                            @expense.Description
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <input @bind="expense.Months" class="form-control" />
+                        }
+                        else
+                        {
+                            @expense.Months
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <input @bind="expense.PayDay" class="form-control" />
+                        }
+                        else
+                        {
+                            @expense.PayDay
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                           
+                        }
+                        else
+                        {
+                            @expense.StartDate.ToString("dd-MM-yyyy")
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <input @bind="expense.EndDate" class="form-control" />
+                        }
+                        else
+                        {
+                            @expense.EndDate.ToString("dd-MM-yyyy")
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <input @bind="expense.Amount" class="form-control" />
+                        }
+                        else
+                        {
+                            @expense.Amount
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <input @bind="expense.SourceAccountOrCardCode" class="form-control" />
+                        }
+                        else
+                        {
+                            @expense.SourceAccountOrCardCode
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <input @bind="expense.DestinationAccountOrCardCode" class="form-control" />
+                        }
+                        else
+                        {
+                            @expense.DestinationAccountOrCardCode
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <select @bind="expense.SubCategoryId" class="form-select">
+                                <option value="">-- Select an option --</option>
+                                @foreach (var option in subCategories)
+                                {
+                                    <option value="@option.Id">@option.Description</option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            @expense.SubCategoryName
+                        }
+                    </td>
+                    <td>
+                        @if (expense.IsEditing)
+                        {
+                            <button class="btn btn-success" @onclick="() => Save(expense)">Save</button>
+                            <button class="btn btn-secondary" @onclick="() => Cancel(expense)">Cancel</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="() => Edit(expense)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => ConfirmDelete(expense.Id)">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-primary" @onclick="AddNewExpense">Add</button>
+}
+
+
+
+@code {
+    private List<ExpenseDto> expenses;
+    List<DropdownDto> subCategories = new List<DropdownDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Transaction SubCategories
+        var response = await Http.GetFromJsonAsync<List<DropdownDto>>("api/Dropdown/GetSubCategories");
+        if (response != null)
+        {
+            subCategories = response;
+        }
+
+        expenses = await Http.GetFromJsonAsync<List<ExpenseDto>>("api/Expenses");
+    }
+
+    void AddNewExpense()
+    {
+        var newExpense = new ExpenseDto();
+        expenses.Add(newExpense);
+
+        Edit(newExpense);
+
+        StateHasChanged();
+    }
+
+    void Edit(ExpenseDto expense)
+    {
+        expense.IsEditing = true;
+    }
+
+    async Task Save(ExpenseDto expense)
+    {
+        if (expense.Id == 0)
+        {
+            CreateExpenseDto createExpenseDto = new CreateExpenseDto();
+
+            createExpenseDto.Id = expense.Id;
+            createExpenseDto.UserId = 1; //TODO @VS - Change user id to current user
+            createExpenseDto.Code = expense.Code;
+            createExpenseDto.Description = expense.Description;
+            createExpenseDto.PayDay = expense.PayDay;
+            createExpenseDto.StartDate = expense.StartDate;
+            createExpenseDto.SourceAccountOrCardCode = expense.SourceAccountOrCardCode;
+            createExpenseDto.DestinationAccountOrCardCode = expense.DestinationAccountOrCardCode;
+            createExpenseDto.Amount = expense.Amount;
+            createExpenseDto.EndDate = expense.EndDate;
+            createExpenseDto.Months = expense.Months;
+            createExpenseDto.SubCategoryId = expense.SubCategoryId;
+
+            var response = await Http.PostAsJsonAsync("api/Expenses", createExpenseDto);
+            expense.IsEditing = false;
+            StateHasChanged();
+        }
+        else
+        {
+            UpdateExpenseDto updateExpenseDto = new UpdateExpenseDto();
+
+            updateExpenseDto.UserId = 1; //TODO @VS - Change user id to current user
+            updateExpenseDto.Code = expense.Code;
+            updateExpenseDto.Description = expense.Description;
+            updateExpenseDto.PayDay = expense.PayDay;
+            updateExpenseDto.SourceAccountOrCardCode = expense.SourceAccountOrCardCode;
+            updateExpenseDto.DestinationAccountOrCardCode = expense.DestinationAccountOrCardCode;
+            updateExpenseDto.Amount = expense.Amount;
+            updateExpenseDto.EndDate = expense.EndDate;
+            updateExpenseDto.Months = expense.Months;
+            updateExpenseDto.SubCategoryId = expense.SubCategoryId;
+
+            var response = await Http.PutAsJsonAsync("api/Expenses/" + expense.Id, updateExpenseDto);
+            expense.IsEditing = false;
+            StateHasChanged();
+        }
+    }
+
+    async Task Cancel(ExpenseDto expense)
+    {
+        expense.IsEditing = false;
+        expenses = await Http.GetFromJsonAsync<List<ExpenseDto>>("api/Expenses");
+        StateHasChanged();
+    }
+
+
+    async Task ConfirmDelete(int expenseId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new string[] { "Are you sure you want to delete this expense?" });
+
+        if (confirmed)
+        {
+            await Delete(expenseId);
+        }
+    }
+
+    async Task Delete(int expenseId)
+    {
+        var response = await Http.DeleteAsync("api/Expenses/" + expenseId);
+        StateHasChanged();
+        expenses = await Http.GetFromJsonAsync<List<ExpenseDto>>("api/Expenses");
+    }
+
+
+} *@

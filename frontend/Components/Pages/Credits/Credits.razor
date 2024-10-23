@@ -1,0 +1,144 @@
+﻿@page "/credits"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+<PageTitle>Personal Management - Credits</PageTitle>
+
+<br />
+<br />
+<h2>Credits</h2>
+<br />
+@* 
+@if (credits == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+                <th>AccountOrCardCodeToDebt</th>
+                <th>StartingCapital</th>
+                <th>DebtCapital</th>
+                <th>Installment</th>
+                <th>PayDay</th>
+                <th>TAN</th>
+                <th>OpenDate</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var credit in credits)
+            {
+                <tr>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.Code" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.Code
+                        }
+                    </td>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.Description" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.Description
+                        }
+                    </td>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.AccountOrCardCodeToDebt" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.AccountOrCardCodeToDebt
+                        }
+                    </td>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.StartingCapital" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.StartingCapital
+                        }
+                    </td>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.DebtCapital" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.DebtCapital
+                        }
+                    </td>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.Installment" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.Installment
+                        }
+                    </td>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.PayDay" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.PayDay
+                        }
+                    </td>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.TAN" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.TAN
+                        }
+                    </td>
+                    <td>
+                        @if (credit.IsEditing)
+                        {
+                            <input @bind="credit.OpenDate" class="form-control" />
+                        }
+                        else
+                        {
+                            @credit.OpenDate.ToString("dd-MM-yyyy")
+                        }
+                    </td>                  
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@code {
+    private List<CreditDto> credits = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        credits = await Http.GetFromJsonAsync<List<CreditDto>>("api/Credits");
+    } 
+
+} *@

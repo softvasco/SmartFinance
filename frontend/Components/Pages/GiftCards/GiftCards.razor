@@ -1,0 +1,235 @@
+﻿@page "/giftcards"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+
+<PageTitle>Personal Management - Gift Cards</PageTitle>
+
+<br />
+<br />
+<h2>Gift cards</h2>
+<br />
+@* 
+@if (giftCards == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Description</th>
+                <th>CardNumber</th>
+                <th>Balance</th>
+                <th>OpenDate</th>
+                <th>Attachment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var giftCard in giftCards)
+            {
+                <tr>
+                    <td>
+                        @if (giftCard.IsEditing)
+                        {
+                            <input @bind="giftCard.Code" class="form-control" />
+                        }
+                        else
+                        {
+                            @giftCard.Code
+                        }
+                    </td>
+                    <td>
+                        @if (giftCard.IsEditing)
+                        {
+                            <input @bind="giftCard.Description" class="form-control" />
+                        }
+                        else
+                        {
+                            @giftCard.Description
+                        }
+                    </td>
+                    <td>
+                        @if (giftCard.IsEditing)
+                        {
+                            <input @bind="giftCard.CardNumber" class="form-control" />
+                        }
+                        else
+                        {
+                            @giftCard.CardNumber
+                        }
+                    </td>
+                    <td>
+                        @if (giftCard.IsEditing)
+                        {
+                            <input @bind="giftCard.Balance" class="form-control" />
+                        }
+                        else
+                        {
+                            @giftCard.Balance
+                        }
+                    </td>
+                    <td>
+                        @if (giftCard.IsEditing)
+                        {
+                            <input @bind="giftCard.OpenDate" class="form-control" />
+                        }
+                        else
+                        {
+                            @giftCard.OpenDate.ToString("dd-MM-yyyy")
+                        }
+                    </td>
+                    <td>
+                        @if (giftCard.IsEditing)
+                        {
+                            if (giftCard.FileBytes != null && giftCard.FileBytes.Length > 0)
+                            {
+                                <a href="@DownloadAttachment(giftCard)" download="@giftCard.FileName">Download file</a>
+                            }
+                            <InputFile id="fileInput" Bind-Value="@giftCard.File" OnChange="HandleFileSelected" />
+                        }
+                        else if (giftCard.FileBytes != null && giftCard.FileBytes.Length > 0)
+                        {
+                            <a href="@DownloadAttachment(giftCard)" download="@giftCard.FileName">Download file</a>
+                        }
+                    </td>
+                    <td>
+                        @if (giftCard.IsEditing)
+                        {
+                            <button class="btn btn-success" @onclick="() => Save(giftCard)">Save</button>
+                            <button class="btn btn-secondary" @onclick="() => Cancel(giftCard)">Cancel</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick="() => Edit(giftCard)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => ConfirmDelete(giftCard.Id)">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button class="btn btn-primary" @onclick="AddNewGiftCard">Add</button>
+}
+
+@code {
+    private List<GiftCardDto> giftCards;
+    private IFormFile fileUpload;
+    int maxFileSizeLimit = 1024 * 1024 * 20;
+
+    protected override async Task OnInitializedAsync()
+    {
+        giftCards = await Http.GetFromJsonAsync<List<GiftCardDto>>("api/GiftCards");
+    }
+
+    string DownloadAttachment(GiftCardDto giftCardDto)
+    {
+        if (giftCardDto.FileBytes == null || giftCardDto.FileBytes.Length <= 0)
+            return string.Empty;
+
+        var dataUrl = $"data:{giftCardDto.ContentType};base64,{Convert.ToBase64String(giftCardDto.FileBytes)}";
+        return dataUrl;
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        var memoryStream = new MemoryStream();
+        await file.OpenReadStream(maxAllowedSize: maxFileSizeLimit).CopyToAsync(memoryStream);
+
+        fileUpload = new FormFile(memoryStream, 0, file.Size, file.Name, file.Name);
+    }
+
+    void AddNewGiftCard()
+    {
+        var newGiftCard = new GiftCardDto();
+        giftCards.Add(newGiftCard);
+
+        Edit(newGiftCard);
+
+        StateHasChanged();
+    }
+
+    void Edit(GiftCardDto newGiftCard)
+    {
+        newGiftCard.IsEditing = true;
+    }
+
+    async Task Save(GiftCardDto giftCardDto)
+    {
+        var formData = new MultipartFormDataContent();
+        formData.Add(new StringContent("1".ToString()), "UserId"); //TODO @VS - Change this
+
+        formData.Add(new StringContent(giftCardDto.Description), "Description");
+        formData.Add(new StringContent(giftCardDto.Code), "Code");
+        formData.Add(new StringContent(giftCardDto.Balance.ToString()), "Balance");
+        formData.Add(new StringContent(giftCardDto.OpenDate.ToString()), "OpenDate");
+        formData.Add(new StringContent(giftCardDto.Id.ToString()), "Id");
+        if (!string.IsNullOrWhiteSpace(giftCardDto.CardNumber))
+            formData.Add(new StringContent(giftCardDto.CardNumber), "CardNumber");
+
+        // Handle file upload
+        if (fileUpload != null)
+        {
+            var stream = new MemoryStream();
+            await fileUpload.CopyToAsync(stream);
+            stream.Position = 0;
+            formData.Add(new StreamContent(stream), "File", fileUpload.FileName);
+            formData.Add(new StringContent(fileUpload.FileName), "FileName");
+        }
+
+        //new
+        if (giftCardDto.Id == 0)
+        {
+            var response = await Http.PostAsync("api/GiftCards", formData);
+            giftCardDto.IsEditing = false;
+            StateHasChanged();
+
+            // Refresh the current page
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        }
+        //update
+        else
+        {
+            formData.Add(new StringContent(giftCardDto.Id.ToString()), "Id");
+
+            var response = await Http.PutAsync($"api/GiftCards/{giftCardDto.Id}", formData);
+            giftCardDto.IsEditing = false;
+            StateHasChanged();
+
+            // Refresh the current page
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        }
+    }
+
+    async Task Cancel(GiftCardDto giftCardDto)
+    {
+        giftCardDto.IsEditing = false;
+        giftCards = await Http.GetFromJsonAsync<List<GiftCardDto>>("api/GiftCards");
+        StateHasChanged();
+    }
+
+
+    async Task ConfirmDelete(int giftCardId)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", new string[] { "Are you sure you want to delete this gift card?" });
+
+        if (confirmed)
+        {
+            await Delete(giftCardId);
+        }
+    }
+
+    async Task Delete(int giftCardId)
+    {
+        var response = await Http.DeleteAsync("api/GiftCards/" + giftCardId);
+        StateHasChanged();
+        giftCards = await Http.GetFromJsonAsync<List<GiftCardDto>>("api/GiftCards");
+    }
+
+}  *@
