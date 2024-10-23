@@ -6,7 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["api/api.csproj", "api/"]
-COPY ["Shared/Shared.csproj", "Shared/"]
+COPY ["shared/shared.csproj", "shared/"]
 RUN dotnet restore "api/api.csproj"
 COPY . .
 WORKDIR "/src/api"

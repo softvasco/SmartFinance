@@ -11,7 +11,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["frontend/frontend.csproj", "frontend/"]
-COPY ["Shared/Shared.csproj", "Shared/"]
+COPY ["shared/shared.csproj", "shared/"]
 RUN dotnet restore "./frontend/frontend.csproj"
 COPY . .
 WORKDIR "/src/frontend"
