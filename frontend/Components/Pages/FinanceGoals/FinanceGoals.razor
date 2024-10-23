@@ -97,7 +97,7 @@ else
                     <td>
                         @if (financeGoal.IsEditing)
                         {
-                            <input @bind="financeGoal.StartGoalDate" class="form-control" />
+                            <input @bind="financeGoal.StartGoalDate" class="form-control" type="date"/>
                         }
                         else
                         {
@@ -107,14 +107,11 @@ else
                     <td>
                         @if (financeGoal.IsEditing)
                         {
-                            <input @bind="financeGoal.EndGoalDate" class="form-control" />
+                            <input @bind="financeGoal.EndGoalDate" class="form-control" type="date" />
                         }
                         else
                         {
-                            @if (financeGoal.EndGoalDate.HasValue)
-                            {
-                                @financeGoal.EndGoalDate.Value!.ToString("dd-MM-yyyy")
-                            }
+                            @financeGoal.EndGoalDate.ToString("dd-MM-yyyy")
                         }
                     </td>
                     <td>
@@ -167,14 +164,14 @@ else
             CreateFinanceGoalDto createFinanceGoalDto = new CreateFinanceGoalDto();
 
             createFinanceGoalDto.Id = financeGoal.Id;
-            // createEarningDto.Code = earning.Code;
-            // createEarningDto.Description = earning.Description;
-            // createEarningDto.EndDate = earning.EndDate;
-            // createEarningDto.PayDay = earning.PayDay;
-            // createEarningDto.Amount = earning.Amount;
-            // createEarningDto.DestinationAccountOrCardCode = earning.DestinationAccountOrCardCode;
-            // createEarningDto.StartDate = earning.StartDate;
-            // createEarningDto.Months = earning.Months;
+            createFinanceGoalDto.Code = financeGoal.Code;
+            createFinanceGoalDto.SmallDescription = financeGoal.SmallDescription;
+            createFinanceGoalDto.FullDescription = financeGoal.FullDescription;
+            createFinanceGoalDto.OutstandingAmount = financeGoal.OutstandingAmount;
+            createFinanceGoalDto.CurrentDebtAmount = financeGoal.CurrentDebtAmount;
+            createFinanceGoalDto.Goal = financeGoal.Goal;
+            createFinanceGoalDto.StartGoalDate = financeGoal.StartGoalDate;
+            createFinanceGoalDto.EndGoalDate = financeGoal.EndGoalDate;
 
             var response = await Http.PostAsJsonAsync("api/FinanceGoals", createFinanceGoalDto);
             financeGoal.IsEditing = false;
@@ -184,14 +181,14 @@ else
         {
             UpdateFinanceGoalDto updateFinanceGoalDto = new UpdateFinanceGoalDto();
 
-            // updateEarningDto.Code = earning.Code;
-            // updateEarningDto.Description = earning.Description;
-            // updateEarningDto.EndDate = earning.EndDate;
-            // updateEarningDto.PayDay = earning.PayDay;
-            // updateEarningDto.Amount = earning.Amount;
-            // updateEarningDto.DestinationAccountOrCardCode = earning.DestinationAccountOrCardCode;
-            // updateEarningDto.StartDate = earning.StartDate;
-            // updateEarningDto.Months = earning.Months;
+            updateFinanceGoalDto.Code = financeGoal.Code;
+            updateFinanceGoalDto.SmallDescription = financeGoal.SmallDescription;
+            updateFinanceGoalDto.FullDescription = financeGoal.FullDescription;
+            updateFinanceGoalDto.OutstandingAmount = financeGoal.OutstandingAmount;
+            updateFinanceGoalDto.CurrentDebtAmount = financeGoal.CurrentDebtAmount;
+            updateFinanceGoalDto.Goal = financeGoal.Goal;
+            updateFinanceGoalDto.StartGoalDate = financeGoal.StartGoalDate;
+            updateFinanceGoalDto.EndGoalDate = financeGoal.EndGoalDate;
 
             var response = await Http.PutAsJsonAsync("api/FinanceGoals/" + financeGoal.Id, updateFinanceGoalDto);
             financeGoal.IsEditing = false;

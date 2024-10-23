@@ -9,7 +9,7 @@
         public decimal CurrentDebtAmount { get; set; }
         public decimal Goal { get; set; }
         public DateTime StartGoalDate { get; set; }
-        public DateTime? EndGoalDate { get; set; }
+        public DateTime EndGoalDate { get; set; }
 
         public int UserId { get; set; }
         public User User { get; set; } 

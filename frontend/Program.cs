@@ -14,7 +14,7 @@ builder.Services.AddDataProtection()
 builder.Services.AddScoped(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var apiUrl = !builder.Environment.IsEnvironment("Development") ? "http://smart_finance_api/" : "http://localhost:5192/";
+    var apiUrl = !builder.Environment.IsEnvironment("Development") ? "http://smart_finance_api/" : "http://localhost:5237/";
     return new HttpClient { BaseAddress = new Uri(apiUrl) };
 });
 

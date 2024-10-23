@@ -25,11 +25,6 @@ namespace api.Repository
              .Where(x => x.IsActive && x.UserId==_userId)
              .ToListAsync();
 
-            if (financeGoals == null || financeGoals.Count == 0)
-            {
-                throw new NotFoundException("No finance goals found for the specified user");
-            }
-
             return financeGoals.Select(c => c.ToFinanceGoalDtoFromFinanceGoal()).ToList();
         }
 
@@ -42,6 +37,11 @@ namespace api.Repository
                     && x.IsActive
                     && x.UserId == _userId))
                 throw new Exception("Finance Goal already exists!");
+
+            financeGoal.UserId = _userId;
+            financeGoal.CreatedDate = DateTime.Now;
+            financeGoal.UpdatedDate = DateTime.Now;
+            financeGoal.IsActive = true;
 
             await _context.FinanceGoals.AddAsync(financeGoal);
             await _context.SaveChangesAsync();
@@ -64,8 +64,7 @@ namespace api.Repository
             existingFinanceGoal.StartGoalDate = financeGoal.StartGoalDate;
             existingFinanceGoal.EndGoalDate = financeGoal.EndGoalDate;
 
-            existingFinanceGoal.UpdatedDate = DateTime.UtcNow;
-            existingFinanceGoal.IsActive = true;
+            existingFinanceGoal.UpdatedDate = DateTime.Now;
 
             try
             {

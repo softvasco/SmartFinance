@@ -39,6 +39,7 @@ namespace api.Mappers
         {
             return new FinanceGoalDto
             {
+                Id = financeGoal.Id,
                 Code = financeGoal.Code,
                 SmallDescription = financeGoal.SmallDescription,
                 FullDescription = financeGoal.FullDescription,

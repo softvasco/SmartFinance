@@ -9,8 +9,32 @@
         public decimal OutstandingAmount { get; set; }
         public decimal CurrentDebtAmount { get; set; }
         public decimal Goal { get; set; }
-        public DateTime StartGoalDate { get; set; }
-        public DateTime? EndGoalDate { get; set; }
+
+        private DateTime? _startGoalDate; 
+        public DateTime StartGoalDate
+        {
+            get
+            {
+                return _startGoalDate ?? DateTime.Now;
+            }
+            set
+            {
+                _startGoalDate = value;
+            }
+        }
+
+        private DateTime? _endGoalDate;
+        public DateTime EndGoalDate
+        {
+            get
+            {
+                return _endGoalDate ?? DateTime.Now;
+            }
+            set
+            {
+                _endGoalDate = value;
+            }
+        }
 
         public bool IsEditing { get; set; }
     }
