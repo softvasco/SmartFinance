@@ -2,8 +2,8 @@
 {
     public class User : BaseEntity
     {
-        public string Name { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
+        public required string Name { get; set; } 
+        public required string Username { get; set; } 
+        public required string Email { get; set; } 
     }
 }
