@@ -2,9 +2,10 @@
 {
     public class MoneyAccount : BaseEntity
     {
-        //public required string Code { get; set; }
-        //public required string Description { get; set; }
-        //public required decimal Balance { get; set; }
+
+        public string Code { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal Balance { get; set; }
 
         //public DateTime OpenDate { get; set; }
         //public DateTime? CloseDate { get; set; }
@@ -50,5 +51,7 @@
 
         //public byte[]? Attachment { get; set; }
         //public string? FileName { get; set; } = string.Empty;
+        
+        public ICollection<User> Users { get; set; } = [];
     }
 }

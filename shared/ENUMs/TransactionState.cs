@@ -3,6 +3,8 @@
     public enum TransactionState
     {
         Pending = 1, 
-        Finished = 2
+        WaitingConf = 2,
+        Finished = 3
+
     }
 }

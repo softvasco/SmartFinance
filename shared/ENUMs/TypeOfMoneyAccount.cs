@@ -1,6 +1,6 @@
 ﻿namespace shared.ENUMs
 {
-    public enum TypeOfTransactionAccount
+    public enum TypeOfMoneyAccount
     {
         BANK=1,
         CREDIT=2,

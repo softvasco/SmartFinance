@@ -5,6 +5,7 @@ using api.Interfaces;
 using api.Mappers;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
+using Shared.DTOs.MoneyAccounts;
 
 namespace api.Repository
 {
@@ -19,14 +20,16 @@ namespace api.Repository
             _userId = _context.Users.First(x=>x.Username=="vasco.silva").Id;
         }
 
-        //public async Task<List<FinanceGoalDto>> GetAsync()
-        //{
-        //    var financeGoals = await _context.FinanceGoals
-        //     .Where(x => x.IsActive && x.UserId==_userId)
-        //     .ToListAsync();
+        public async Task<List<MoneyAccountDto>> GetAsync()
+        {
+            var moneyAccounts = await _context.MoneyAccounts
+                .Where(x => x.IsActive
+                   && x.Users.Any(u => u.Id == _userId))
+                .ToListAsync();
 
-        //    return financeGoals.Select(c => c.ToFinanceGoalDtoFromFinanceGoal()).ToList();
-        //}
+            return moneyAccounts.Select(c => c.ToFinanceGoalDtoFromFinanceGoal()).ToList();
+        }
+
 
         //public async Task<FinanceGoal> CreateAsync(FinanceGoal financeGoal)
         //{

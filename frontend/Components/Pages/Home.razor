@@ -7,45 +7,96 @@
 
 <PageTitle>Smart Finance - Annual Dashboard</PageTitle>
 
-<div class="container">
-    <h2>DashBoard</h2>
+<style>
+    .year-selector {
+        display: inline-flex;
+        align-items: center;
+        justify-content: start;
+    }
 
-    <!-- Dropdown para selecionar o ano -->
-    <div class="year-selector">
-        <label for="yearDropdown">Selecione o Ano:</label>
-        <select id="yearDropdown" @bind="SelectedYear" class="form-control">
-            @foreach (var year in AvailableYears)
-            {
-                <option value="@year">@year</option>
-            }
-        </select>
-    </div>
+    .year-selector button {
+        padding: 5px;
+    }
 
-    <!-- Gráfico Donut -->
-    <div class="chart-container" style="position: relative; width: 300px; float: right; margin-top: -100px;">
-        <canvas id="donutChart"></canvas>
-    </div>
+    .year-selector span {
+        font-size: 18px;
+        font-weight: bold;
+    }
+</style>
+
+<h2>DashBoard</h2>
+
+<div class="year-selector d-flex align-items-center">
+    @if (SelectedYear > AvailableYears.First())
+    {
+            <button class="btn btn-light" @onclick="PreviousYear">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+    }
+    else
+    {
+            <button class="btn btn-light" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+    }
+
+    <span class="mx-2">@SelectedYear</span>
+
+    @if (SelectedYear < AvailableYears.Last())
+    {
+            <button class="btn btn-light" @onclick="NextYear">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+    }
+    else
+    {
+            <button class="btn btn-light" disabled>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+    }
 </div>
 
+<!-- Gráfico Donut -->
+<div class="chart-container" style="position: relative; width: 300px; float: right; margin-top: -100px;">
+    <canvas id="donutChart"></canvas>
+</div>
 
 @code {
     private bool _isInteractive = false;
 
-    private int SelectedYear = 2024;
-    private List<int> AvailableYears = new List<int> { 2024, 2025, 2026 };
     private decimal TotalDebt = 60000m;
     private decimal CurrentDebt = 20000m;
     private decimal PredictedDebtEndOfYear = 15000m;
 
-    // Quando o ano é selecionado, podes atualizar as variáveis de dívida conforme o ano
-    private void OnYearChanged(ChangeEventArgs e)
+    // Anos disponíveis para navegação
+    List<int> AvailableYears = new List<int> { 2024, 2025, 2026 };
+
+    // Ano selecionado atualmente
+    int SelectedYear = DateTime.Now.Year;
+
+    // Método para retroceder um ano
+    void PreviousYear()
     {
-        SelectedYear = int.Parse(e.Value.ToString());
-        // Atualiza os valores de dívida conforme o ano selecionado
-        UpdateDebtValues(SelectedYear);
-        // RenderChart();
+        var index = AvailableYears.IndexOf(SelectedYear);
+        if (index > 0)
+        {
+            SelectedYear = AvailableYears[index - 1];
+            UpdateDebtValues(SelectedYear);
+        }
     }
 
+    // Método para avançar um ano
+    void NextYear()
+    {
+        var index = AvailableYears.IndexOf(SelectedYear);
+        if (index < AvailableYears.Count - 1)
+        {
+            SelectedYear = AvailableYears[index + 1];
+            UpdateDebtValues(SelectedYear);
+        }
+    }
+
+    // Quando o ano é selecionado, podes atualizar as variáveis de dívida conforme o ano
     private void UpdateDebtValues(int year)
     {
         // Lógica para atualizar o valor da dívida conforme o ano
@@ -64,6 +115,7 @@
             CurrentDebt = 5000m;
             PredictedDebtEndOfYear = 0m;
         }
+        JSRuntime.InvokeVoidAsync("renderDonutChart", TotalDebt, CurrentDebt, PredictedDebtEndOfYear);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -74,5 +126,4 @@
             await JSRuntime.InvokeVoidAsync("renderDonutChart", TotalDebt, CurrentDebt, PredictedDebtEndOfYear);
         }
     }
-
 }

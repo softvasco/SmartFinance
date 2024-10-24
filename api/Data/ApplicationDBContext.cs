@@ -12,7 +12,7 @@ namespace api.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<MoneyAccount> TransactionAccounts { get; set; }
+        public DbSet<MoneyAccount> MoneyAccounts { get; set; }
         public DbSet<FinanceGoal> FinanceGoals { get; set; }
     }
 }
