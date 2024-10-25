@@ -27,7 +27,7 @@ namespace api.Repository
                    && x.Users.Any(u => u.Id == _userId))
                 .ToListAsync();
 
-            return moneyAccounts.Select(c => c.ToFinanceGoalDtoFromFinanceGoal()).ToList();
+            return moneyAccounts.Select(c => c.ToMoneyAccountDtoFromMoneyAccount()).ToList();
         }
 
 

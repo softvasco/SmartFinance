@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241024082817_AddMoneyAccount")]
+    partial class AddMoneyAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,44 +38,6 @@ namespace api.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("MoneyAccountUser");
-                });
-
-            modelBuilder.Entity("api.Models.Document", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<byte[]>("Attachment")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("MoneyAccountId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TransactionId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MoneyAccountId");
-
-                    b.HasIndex("TransactionId");
-
-                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("api.Models.FinanceGoal", b =>
@@ -140,15 +105,6 @@ namespace api.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("CardNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("CloseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("CloseExtractDay")
-                        .HasColumnType("int");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -156,58 +112,12 @@ namespace api.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<decimal?>("DebtCapital")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("EntityNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullDescription")
+                    b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IBAN")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("Installment")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
-
-                    b.Property<string>("NIB")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Number")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("OpenDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("PayDay")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("PercentageOfPayment")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("Plafon")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("RefNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SmallDescription")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("StartingCapital")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Swift")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal?>("TAN")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("TypeOfMoneyAccount")
                         .HasColumnType("int");
@@ -291,17 +201,6 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("api.Models.Document", b =>
-                {
-                    b.HasOne("api.Models.MoneyAccount", null)
-                        .WithMany("Documents")
-                        .HasForeignKey("MoneyAccountId");
-
-                    b.HasOne("api.Models.Transaction", null)
-                        .WithMany("Documents")
-                        .HasForeignKey("TransactionId");
-                });
-
             modelBuilder.Entity("api.Models.FinanceGoal", b =>
                 {
                     b.HasOne("api.Models.User", "User")
@@ -311,16 +210,6 @@ namespace api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("api.Models.MoneyAccount", b =>
-                {
-                    b.Navigation("Documents");
-                });
-
-            modelBuilder.Entity("api.Models.Transaction", b =>
-                {
-                    b.Navigation("Documents");
                 });
 
             modelBuilder.Entity("api.Models.User", b =>

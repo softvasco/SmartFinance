@@ -2,5 +2,6 @@
 {
     public class Transaction: BaseEntity
     {
+        public ICollection<Document> Documents { get; set; } = [];
     }
 }
