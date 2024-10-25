@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241025160904_AddInflation")]
+    partial class AddInflation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,43 +38,6 @@ namespace api.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("MoneyAccountUser");
-                });
-
-            modelBuilder.Entity("SubcategoryTag", b =>
-                {
-                    b.Property<int>("SubcategoriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TagsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("SubcategoriesId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("SubcategoryTag");
-                });
-
-            modelBuilder.Entity("api.Models.Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("api.Models.Document", b =>
@@ -110,33 +76,6 @@ namespace api.Migrations
                     b.HasIndex("TransactionId");
 
                     b.ToTable("Documents");
-                });
-
-            modelBuilder.Entity("api.Models.Expense", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("SubcategoryID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubcategoryID");
-
-                    b.ToTable("Expense");
                 });
 
             modelBuilder.Entity("api.Models.FinanceGoal", b =>
@@ -312,59 +251,6 @@ namespace api.Migrations
                     b.ToTable("MoneyAccounts");
                 });
 
-            modelBuilder.Entity("api.Models.Subcategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryID");
-
-                    b.ToTable("Subcategories");
-                });
-
-            modelBuilder.Entity("api.Models.Tag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tags");
-                });
-
             modelBuilder.Entity("api.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -436,21 +322,6 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SubcategoryTag", b =>
-                {
-                    b.HasOne("api.Models.Subcategory", null)
-                        .WithMany()
-                        .HasForeignKey("SubcategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.Tag", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("api.Models.Document", b =>
                 {
                     b.HasOne("api.Models.MoneyAccount", null)
@@ -460,17 +331,6 @@ namespace api.Migrations
                     b.HasOne("api.Models.Transaction", null)
                         .WithMany("Documents")
                         .HasForeignKey("TransactionId");
-                });
-
-            modelBuilder.Entity("api.Models.Expense", b =>
-                {
-                    b.HasOne("api.Models.Subcategory", "Subcategory")
-                        .WithMany("Expenses")
-                        .HasForeignKey("SubcategoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Subcategory");
                 });
 
             modelBuilder.Entity("api.Models.FinanceGoal", b =>
@@ -484,30 +344,9 @@ namespace api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("api.Models.Subcategory", b =>
-                {
-                    b.HasOne("api.Models.Category", "Category")
-                        .WithMany("Subcategories")
-                        .HasForeignKey("CategoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("api.Models.Category", b =>
-                {
-                    b.Navigation("Subcategories");
-                });
-
             modelBuilder.Entity("api.Models.MoneyAccount", b =>
                 {
                     b.Navigation("Documents");
-                });
-
-            modelBuilder.Entity("api.Models.Subcategory", b =>
-                {
-                    b.Navigation("Expenses");
                 });
 
             modelBuilder.Entity("api.Models.Transaction", b =>
