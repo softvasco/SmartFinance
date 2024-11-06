@@ -1,4 +1,4 @@
-﻿using Shared.DTOs.FinanceGoals;
+﻿using shared.DTOs.FinanceGoals;
 using api.Models;
 
 namespace api.Mappers

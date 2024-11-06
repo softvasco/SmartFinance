@@ -1,4 +1,4 @@
-﻿namespace Shared.DTOs.FinanceGoals
+﻿namespace shared.DTOs.FinanceGoals
 {
     public class FinanceGoalDto
     {

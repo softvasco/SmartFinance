@@ -1,9 +1,7 @@
-﻿using shared.DTOs.FinanceGoals;
-using api.Models;
-
+﻿
 namespace api.Interfaces
 {
-    public interface IHomeRepository
+    public interface IDropdownRepository
     {
         //Task<List<FinanceGoalDto>> GetAsync();
         //Task<FinanceGoal> CreateAsync(FinanceGoal financeGoal);

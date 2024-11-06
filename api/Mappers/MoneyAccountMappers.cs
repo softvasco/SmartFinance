@@ -1,5 +1,5 @@
 ﻿using api.Models;
-using Shared.DTOs.MoneyAccounts;
+using shared.DTOs.MoneyAccounts;
 
 namespace api.Mappers
 {

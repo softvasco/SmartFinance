@@ -19,6 +19,8 @@ builder.Services.AddDbContextFactory<ApplicationDBContext>(options =>
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFinanceGoalRepository, FinanceGoalRepository>();
+builder.Services.AddScoped<IMoneyAccountRepository, MoneyAccountRepository>();
+builder.Services.AddScoped<IDropdownRepository, DropdownRepository>();
 
 var app = builder.Build();
 

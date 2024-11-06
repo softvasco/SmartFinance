@@ -1,4 +1,4 @@
-using Shared.DTOs.FinanceGoals;
+using shared.DTOs.FinanceGoals;
 using api.Helpers;
 using api.Interfaces;
 using api.Mappers;

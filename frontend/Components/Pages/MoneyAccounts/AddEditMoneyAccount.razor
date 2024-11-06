@@ -6,14 +6,143 @@
 
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
 
-@if (Id == null)
+@if (string.IsNullOrEmpty(Id))
 {
     <PageTitle>Smart Finance - Add Money Account</PageTitle>
 
     <br />
     <br />
-    <h2>Add money account</h2>
+    <h4>Add money account</h4>
     <br />
+
+    <EditForm Model="@createMoneyAccountDto" OnSubmit="HandleSubmit">
+        <div class="row">
+            <div class="col-1">
+                <label>Code:</label>
+                <input type="text" class="form-control" @bind="createMoneyAccountDto.Code" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-1">
+                <label>Type of account:</label>
+                <select @bind="createMoneyAccountDto.TypeOfMoneyAccountId" class="form-select">
+                    <option value="">-- Select --</option>
+                    @foreach (var option in typeOfMoneyAccounts)
+                    {
+                        <option value="@option.Id">@option.Description</option>
+                    }
+                </select>
+            </div>
+        </div>
+        @* <div class="row">
+    <div class="col-2">
+    <label>Description:</label>
+    <input type="text" class="form-control" @bind="createTransactionDto.Description" />
+    </div>
+    <div class="col-2">
+    <label>State:</label>
+    <select @bind="createTransactionDto.State" class="form-select">
+    <option value="">-- Select an option --</option>
+    @foreach (var option in transactionStates)
+    {
+    <option value="@option.Id">@option.Description</option>
+    }
+    </select>
+    </div>
+    <div class="col-2">
+    <label>Sub Category:</label>
+    <select @bind="createTransactionDto.SubCategoryId" class="form-select">
+    <option value="">-- Select an option --</option>
+    @foreach (var option in subcategories)
+    {
+    <option value="@option.Id">@option.Description</option>
+    }
+    </select>
+    </div>
+    <div class="col-2">
+    <label>Operation date:</label>
+    <input type="date" class="form-control" @bind="createTransactionDto.OperationDate" />
+    </div>
+    </div>
+    <br />
+    <div class="row">
+    <div class="col-2">
+    <label>Source:</label>
+    <select @bind="createTransactionDto.SourceAccountOrCardCode" class="form-select">
+    <option value="">-- Select an option --</option>
+    @foreach (var option in listOfSources)
+    {
+    <option value="@option.Code">@option.Description</option>
+    }
+    </select>
+    </div>
+    <div class="col-2">
+    <label>Destination:</label>
+    <select @bind="createTransactionDto.DestinationAccountOrCardCode" class="form-select">
+    <option value="">-- Select an option --</option>
+    @foreach (var option in listOfDestination)
+    {
+    <option value="@option.Code">@option.Description</option>
+    }
+    </select>
+    </div>
+
+    <div class="col-2">
+    <label>Amount:</label>
+    <div class="input-group">
+    <span class="input-group-text">€</span>
+    <input type="number" step="0.01" class="form-control" @bind="createTransactionDto.Amount" />
+    </div>
+    </div>
+    <div class="col-2">
+    <label>Is Half transaction:</label>
+    <br />
+    <input type="checkbox" class="form-check-input" @bind="createTransactionDto.IsHalfTransaction" />
+    </div>
+    </div>
+    <br />
+    <div class="row">
+    <div class="col-2">
+    <label>Earning:</label>
+    <select @bind="createTransactionDto.EarningId" class="form-select">
+    <option value="">-- Select an option --</option>
+    @foreach (var option in listOfEarnings)
+    {
+    <option value="@option.Id">@option.Description</option>
+    }
+    </select>
+    </div>
+    <div class="col-2">
+    <label>Expense:</label>
+    <select @bind="createTransactionDto.ExpenseId" class="form-select">
+    <option value="">-- Select an option --</option>
+    @foreach (var option in listOfExpenses)
+    {
+    <option value="@option.Id">@option.Description</option>
+    }
+    </select>
+    </div>
+    <div class="col-2">
+    <label>Credit:</label>
+    <select @bind="createTransactionDto.CreditId" class="form-select">
+    <option value="">-- Select an option --</option>
+    @foreach (var option in listOfCredits)
+    {
+    <option value="@option.Id">@option.Description</option>
+    }
+    </select>
+    </div>
+    </div>
+    <br />
+    <div class="row">
+    <div class="col-2">
+    <InputFile id="fileInput" Bind-Value="@createTransactionDto.File" OnChange="HandleFileSelected" />
+    </div>
+    </div> *@
+        <br />
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </EditForm>
 }
 else
 {
@@ -26,5 +155,24 @@ else
 
 @code {
 
-    [Parameter] public int? Id { get; set; }
+    [Parameter] public string Id { get; set; }
+
+    CreateMoneyAccountDto createMoneyAccountDto = new();
+    UpdateMoneyAccountDto updateMoneyAccountDto = new();
+
+    List<DropdownDto> typeOfMoneyAccounts = new List<DropdownDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Type of Accounts
+        var response = await Http.GetFromJsonAsync<List<DropdownDto>>("api/Dropdown/GetTypeOfAccounts");
+        if (response != null)
+        {
+            typeOfMoneyAccounts = response;
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+    }
 }

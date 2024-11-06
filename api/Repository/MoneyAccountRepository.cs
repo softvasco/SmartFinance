@@ -1,11 +1,8 @@
 ﻿using api.Data;
-using Shared.DTOs.FinanceGoals;
-using api.Helpers;
 using api.Interfaces;
 using api.Mappers;
-using api.Models;
 using Microsoft.EntityFrameworkCore;
-using Shared.DTOs.MoneyAccounts;
+using shared.DTOs.MoneyAccounts;
 
 namespace api.Repository
 {

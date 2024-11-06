@@ -1,32 +1,29 @@
 ﻿using api.Data;
-using shared.DTOs.FinanceGoals;
-using api.Helpers;
 using api.Interfaces;
-using api.Mappers;
-using api.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace api.Repository
 {
-    public class HomeRepository : IHomeRepository
+    public class DropdownRepository : IDropdownRepository
     {
         private int _userId;
         private readonly ApplicationDBContext _context;
 
-        public HomeRepository(ApplicationDBContext context)
+        public DropdownRepository(ApplicationDBContext context)
         {
             _context = context;
             _userId = _context.Users.First(x=>x.Username=="vasco.silva").Id;
         }
 
-        //public async Task<List<FinanceGoalDto>> GetAsync()
+        //public async Task<List<MoneyAccountDto>> GetAsync()
         //{
-        //    var financeGoals = await _context.FinanceGoals
-        //     .Where(x => x.IsActive && x.UserId==_userId)
-        //     .ToListAsync();
+        //    var moneyAccounts = await _context.MoneyAccounts
+        //        .Where(x => x.IsActive
+        //           && x.Users.Any(u => u.Id == _userId))
+        //        .ToListAsync();
 
-        //    return financeGoals.Select(c => c.ToFinanceGoalDtoFromFinanceGoal()).ToList();
+        //    return moneyAccounts.Select(c => c.ToMoneyAccountDtoFromMoneyAccount()).ToList();
         //}
+
 
         //public async Task<FinanceGoal> CreateAsync(FinanceGoal financeGoal)
         //{

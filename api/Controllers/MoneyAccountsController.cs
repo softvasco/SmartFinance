@@ -1,7 +1,5 @@
-using Shared.DTOs.FinanceGoals;
 using api.Helpers;
 using api.Interfaces;
-using api.Mappers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controllers
@@ -26,8 +24,8 @@ namespace api.Controllers
         {
             try
             {
-                var financeGoals = await _moneyAccountRepository.GetAsync();
-                return Ok(financeGoals);
+                var moneyAccounts = await _moneyAccountRepository.GetAsync();
+                return Ok(moneyAccounts);
             }
             catch (NotFoundException)
             {

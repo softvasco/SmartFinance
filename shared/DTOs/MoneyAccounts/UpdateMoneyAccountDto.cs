@@ -1,4 +1,4 @@
-﻿namespace Shared.DTOs.MoneyAccounts
+﻿namespace shared.DTOs.MoneyAccounts
 {
     public class UpdateMoneyAccountDto
     {
